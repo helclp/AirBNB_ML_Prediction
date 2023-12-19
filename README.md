@@ -27,7 +27,7 @@ The initial features are partially changed throughout our machine learning proce
 
 # code block1 goes here 
 
-<iframe src="Assets/output_plot1.html)" width=800 height=600 frameBorder=0></iframe>
+<iframe src="Assets/plot1.html" width=800 height=600 frameBorder=0></iframe>
 
 # Data
 
