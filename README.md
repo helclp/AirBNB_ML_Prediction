@@ -1,2 +1,2 @@
 # AirBNB_ML_predicition
-Three ML model comparison for prediciting European Air B&amp;B
+Three SciKitLearn ML model comparison project for prediciting European Air B&B rental prices. 
