@@ -18,7 +18,7 @@ The problem that we are trying to solve is the difficulty airbnb users have when
 
 # Data
 
-Link to dataset used on kaggle: https://www.kaggle.com/datasets/dipeshkhemani/airbnb-cleaned-europe-dataset?select=Aemf1.csv
+Link to dataset used on kaggle: [here](https://www.kaggle.com/datasets/dipeshkhemani/airbnb-cleaned-europe-dataset?select=Aemf1.csv)
 
 Our dataset initially has 40k observations, spanning 19 variables (columns): 
 Name of the city, Price of Airbnb, If it is weekday or weekend, Room type, Type of Airbnb (e.g. Apartment, house etc.), Private Room, Shared Room,The Person Capacity of Airbnb, If the Airbnb host has Superhost or not, If the Airbnb has multiple rooms, Business (If the owner of the listing has more than 4 listings total), Cleanliness Rating, Guest Satisfaction, Bedrooms (number of bedrooms), Distance to City Center (km), Metro Distance (km) (distance to subway/metro), Attraction Index (score based on proximity to tourist attractions), Normalised Attraction Index,  Restaurant Index (score based on how many/popularity of restaurants nearby), Normalised Restaurant index. 
@@ -27,6 +27,7 @@ The initial features are partially changed throughout our machine learning proce
 
 # code block1 goes here 
 
+<iframe src="Assets/output_plot1.html)" width=800 height=600 frameBorder=0></iframe>
 
 # Data
 
