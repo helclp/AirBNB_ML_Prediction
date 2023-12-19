@@ -1,8 +1,8 @@
 # **Price Prediction Model for European Airbnb Listings**
 
-Developed by: Patrick Helcl
+**Developed by: Patrick Helcl**
 
-Written by: Kai Stern
+**Written by: Kai Stern**
 
 # Abstract 
 We aim to build a model that predicts the price of Airbnbs in Europe using a data set from Kaggle which details the features and pricings of Airbnb’s in various European countries and cities. This model would help people looking to travel quickly determine if an Airbnb is fairly priced and the pricing trends of Airbnbs in general areas. The model would also help owners of Airbnbs determine prices according to their circumstances and attributes. The data used includes various statistics of Airbnb features (e.g number of rooms, price, has superhost, etc). Due to our datasets inclusion of boolean, categorical, and numerical data columns we plan to use a random forest regressor model which we feel will best handle these features. We will be building a model that predicts the price of the Airbnb and compare our model’s results with the price column in our dataset. The specific model will be chosen after feature selection, hyperparameter tuning, and comparison of several algorithms. Algorithms will be compared using appropriate loss functions.  
@@ -24,19 +24,19 @@ Our dataset initially has 40k observations, spanning 19 variables (columns):
 Name of the city, Price of Airbnb, If it is weekday or weekend, Room type, Type of Airbnb (e.g. Apartment, house etc.), Private Room, Shared Room,The Person Capacity of Airbnb, If the Airbnb host has Superhost or not, If the Airbnb has multiple rooms, Business (If the owner of the listing has more than 4 listings total), Cleanliness Rating, Guest Satisfaction, Bedrooms (number of bedrooms), Distance to City Center (km), Metro Distance (km) (distance to subway/metro), Attraction Index (score based on proximity to tourist attractions), Normalised Attraction Index,  Restaurant Index (score based on how many/popularity of restaurants nearby), Normalised Restaurant index. 
 The initial features are partially changed throughout our machine learning process as we one hot encoded the categorical columns, and dropped “Normalised Attraction Index”, “Normalised Restaurant Index", since the pipeline we plan to use later normalizes all scalars anyways. Some of these variables have many data inputs, and each of these inputs is an observation. Prior to starting our analysis we presumed some particularly critical variables would be the city the airbnb is in, whether it is a weekday or not, the guest satisfaction, and the amount of bedrooms. Categorical variables such as city and weekday/weekend columns will be one-hot encoded and the numerical data will be normalized to avoid scale differences and aid identifying feature importance. As we perform feature selection, feature selected models may drop some data that is unnecessary for testing purposes.
 
+| City      |   Price | Day     | Room Type    | Shared Room   | Private Room   |   Person Capacity | Superhost   |   Multiple Rooms |   Business |   Cleanliness Rating |   Guest Satisfaction |   Bedrooms |   City Center (km) |   Metro Distance (km) |   Attraction Index |   Restraunt Index |
+|:----------|--------:|:--------|:-------------|:--------------|:---------------|------------------:|:------------|-----------------:|-----------:|---------------------:|---------------------:|-----------:|-------------------:|----------------------:|-------------------:|------------------:|
+| Amsterdam | 194.034 | Weekday | Private room | False         | True           |                 2 | False       |                1 |          0 |                   10 |                   93 |          1 |           5.02296  |              2.53938  |            78.6904 |           98.2539 |
+| Amsterdam | 344.246 | Weekday | Private room | False         | True           |                 4 | False       |                0 |          0 |                    8 |                   85 |          1 |           0.488389 |              0.239404 |           631.176  |          837.281  |
+| Amsterdam | 264.101 | Weekday | Private room | False         | True           |                 2 | False       |                0 |          1 |                    9 |                   87 |          1 |           5.74831  |              3.65162  |            75.2759 |           95.387  |
+| Amsterdam | 433.529 | Weekday | Private room | False         | True           |                 4 | False       |                0 |          1 |                    9 |                   90 |          2 |           0.384862 |              0.439876 |           493.273  |          875.033  |
+| Amsterdam | 485.553 | Weekday | Private room | False         | True           |                 2 | True        |                0 |          0 |                   10 |                   98 |          1 |           0.544738 |              0.318693 |           552.83   |          815.306  |
 
-# code block1 goes here 
 
-<iframe src="Assets/plot1.html" width=800 height=600 frameBorder=0></iframe>
 
-# Data
+# Solution
 
-Link to dataset used on kaggle: https://www.kaggle.com/datasets/dipeshkhemani/airbnb-cleaned-europe-dataset?select=Aemf1.csv
-
-Our dataset initially has 40k observations, spanning 19 variables (columns): 
-Name of the city, Price of Airbnb, If it is weekday or weekend, Room type, Type of Airbnb (e.g. Apartment, house etc.), Private Room, Shared Room,The Person Capacity of Airbnb, If the Airbnb host has Superhost or not, If the Airbnb has multiple rooms, Business (If the owner of the listing has more than 4 listings total), Cleanliness Rating, Guest Satisfaction, Bedrooms (number of bedrooms), Distance to City Center (km), Metro Distance (km) (distance to subway/metro), Attraction Index (score based on proximity to tourist attractions), Normalised Attraction Index,  Restaurant Index (score based on how many/popularity of restaurants nearby), Normalised Restaurant index. 
-The initial features are partially changed throughout our machine learning process as we one hot encoded the categorical columns, and dropped “Normalised Attraction Index”, “Normalised Restaurant Index", since the pipeline we plan to use later normalizes all scalars anyways. Some of these variables have many data inputs, and each of these inputs is an observation. Prior to starting our analysis we presumed some particularly critical variables would be the city the airbnb is in, whether it is a weekday or not, the guest satisfaction, and the amount of bedrooms. Categorical variables such as city and weekday/weekend columns will be one-hot encoded and the numerical data will be normalized to avoid scale differences and aid identifying feature importance. As we perform feature selection, feature selected models may drop some data that is unnecessary for testing purposes.
-
+To help alleviate the uncertainty associated with picking and pricing airbnb’s, we propose a model to meaningfully predict price listings by leveraging features, previously mentioned in the data section above, from our dataset. Our plan is to use a decision tree regressor as our base model. Decision tree regressors are built for continuous data and can capture non-linear relationships while remaining interpretable. However decision tree regressors are very sensitive to the training data which can lead to overfitting and high variance. For this reason we aim to build upon the base model and use a random forest. Random forests are ensembles made up of decision trees that aggregate the outputs of the many decision trees to help solve the issues with overfitting and high variability. A random forest regressor is a random forest made up of decision tree regressors allowing it to work with continuous data. We expect random forest regressors to perform better on test set data as they are more generalizable. We will perform feature selection using recursive feature elimination cross validation and grid search validation for hyperparameter tuning. Comparison between models will be mainly evaluated using mean absolute error (MAE) with a secondary comparison using r2 score. All of our code is available to provide reproducibility of our results. Reproduced results should be based on data from the nine cities in our 
 
 # Evaluation Metrics
 
@@ -50,5 +50,90 @@ Our goal was to create a model that could predict the price listing of an airbnb
 We first fit and trained our models on all the features to look into which model performs better, with all default parameters. This is a preliminary look into the models so we will not do feature selection or hyperparameter tuning yet. Random Forest tends to take a bit longer to train and test, but perform better than the Decision Tree model using the metrics we looked at.
 
 
-# code blocks  goes here 
+# plot 1 here (may need more writing) 
 
+note/ todo: need to check that writing before accurately explains the process before this plot and the next one
+
+<iframe src="Assets/plot1.html" width=825 height=600 frameBorder=0></iframe>
+
+Decision Tree metrics:
+
+Mean Absolute Error: 55.95728134459591
+
+R-squared score: 0.2810791089388208 
+
+
+Baselin Random Forest metrics:
+
+Mean Absolute Error: 53.867140181648445
+
+R-squared score: 0.328695377157141
+
+
+# plot 2 here (may need more writing)
+note/ todo: need to check that writing before accurately explains the process before this plot 
+
+<iframe src="Assets/plot2.html" width=825 height=600 frameBorder=0></iframe>
+
+Decision Tree metrics:
+
+Mean Absolute Error: 55.95728134459591
+
+R-squared score: 0.2810791089388208 
+
+
+Baselin Random Forest metrics:
+
+Mean Absolute Error: 53.867140181648445
+
+R-squared score: 0.328695377157141
+
+
+# Interpretation
+
+The base model decision tree regressor’s r2 score was lower and its MAE was higher than the Random Forest. In other words, our base model random forest performed better than the base model Decision Tree Regressor in both error metrics. We plan on comparing this model with our final model to analyze the performance changes of our final model. The features of the base model will  be used for comparison with the features selected in our final model. We decided to utilize the train test split method for training/testing and allocated 70% of our data to training and the remaining 30% to testing. Our data points are randomly placed (with a seed for reproducibility) into the training and test sets. We feel justified in this method for splitting the data as we have over 41,000 data points, thus giving our model approximately 30,000 data points to learn from and 10,000 to test generalizability. Other methods for training and testing models such as k-fold cross validation would add unnecessary computation and time complexity given the large size of our dataset. The train test split method best balances creating representative training and test sets for our model while minimizing complexity and implementation time. 
+
+Since the Random Forest Regressor performed better than the decision tree regressor, we decided to use it for our final model. We used Recursive Feature Elimination Cross Validation (RFECV) to select the features used in our final model. The first step of RFECV is to rank the features based on feature importance. Unimportant features are then eliminated. From there the remaining features are trained/tested using cross validation. Features are dropped iteratively and the model is repeatedly tested on the new feature set. The end result is the iteration that performed best based on the metric of choice, which is MAE for this project. This was all implemented and conducted using sci-kit learn’s built in feature selection module and RFECV method. After running our code for the feature selection, all columns were selected as important except for the “Shared Room” column. We included a new pair of base models using the updated feature list for another comparison of our model to its baseline. The feature selection suggests that almost all features played an important role in determining the price of an airbnb. Our results below show that both the random forest regressor and decision tree regressor slightly improved their MAE and r2 score after using the new features. 
+
+### Feature selection: 
+
+```py
+
+# feature selection block
+
+subset = airbnb.sample(n=int(41714/800), random_state=23)
+
+X = subset.drop('Price', axis=1)
+y = subset['Price']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=42)
+
+categorical_cols = ['City', 'Day', 'Room Type']
+
+numeric_cols = ['Person Capacity', 'Cleanliness Rating', 'Guest Satisfaction', 'Bedrooms',
+                'City Center (km)', 'Metro Distance (km)', 'Attraction Index','Restraunt Index']
+
+boolean_cols = ['Shared Room', 'Private Room', 'Superhost', 'Multiple Rooms', 'Business']
+
+preproc = ColumnTransformer(
+    transformers=[
+        ('one hot', OneHotEncoder(categories='auto'), categorical_cols),
+        ('standardize', StandardScaler(), numeric_cols),
+        ('bool as is', 'passthrough', boolean_cols)
+    ])
+
+X_train_transformed = preproc.fit_transform(X_train)
+
+X_test_transformed = preproc.transform(X_test)
+
+rf_regressor = RandomForestRegressor()
+
+selector = RFECV(rf_regressor, cv=5, scoring='neg_mean_absolute_error')
+selector.fit(X_train_transformed, y_train)
+
+selected_features = preproc.transformers_[0][1].get_feature_names_out(categorical_cols).tolist() + numeric_cols + boolean_cols
+selected_features = [selected_features[i] for i, support in enumerate(selector.support_) if support]
+
+print("Selected Features: ")
+print(selected_features)
+```
