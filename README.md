@@ -1,9 +1,3 @@
-# **Price Prediction Model for European Airbnb Listings**
-
-**Developed by: Patrick Helcl**
-
-**Written by: Kai Stern**
-
 # Abstract 
 We aim to build a model that predicts the price of Airbnbs in Europe using a data set from Kaggle which details the features and pricings of Airbnb’s in various European countries and cities. This model would help people looking to travel quickly determine if an Airbnb is fairly priced and the pricing trends of Airbnbs in general areas. The model would also help owners of Airbnbs determine prices according to their circumstances and attributes. The data used includes various statistics of Airbnb features (e.g number of rooms, price, has superhost, etc). Due to our datasets inclusion of boolean, categorical, and numerical data columns we plan to use a random forest regressor model which we feel will best handle these features. We will be building a model that predicts the price of the Airbnb and compare our model’s results with the price column in our dataset. The specific model will be chosen after feature selection, hyperparameter tuning, and comparison of several algorithms. Algorithms will be compared using appropriate loss functions.  
 
@@ -140,3 +134,249 @@ selected_features = [selected_features[i] for i, support in enumerate(selector.s
 print("Selected Features: ")
 print(selected_features)
 ```
+
+Selected Features: 
+['City_Amsterdam', 'City_Budapest', 'City_Paris', 'Day_Weekday', 'Day_Weekend', 'Room Type_Entire home/apt', 'Person Capacity', 'Cleanliness Rating', 'Guest Satisfaction', 'Bedrooms', 'City Center (km)', 'Metro Distance (km)', 'Attraction Index', 'Restraunt Index', 'Private Room', 'Superhost', 'Multiple Rooms', 'Business']
+
+Original columns for refrence:
+['City_Amsterdam',
+ 'City_Budapest',
+ 'City_Paris',
+ 'Day_Weekday',
+ 'Day_Weekend',
+ 'Room Type_Entire home/apt',
+ 'Person Capacity',
+ 'Cleanliness Rating',
+ 'Guest Satisfaction',
+ 'Bedrooms',
+ 'City Center (km)',
+ 'Metro Distance (km)',
+ 'Attraction Index',
+ 'Restraunt Index',
+ 'Private Room',
+ 'Superhost',
+ 'Multiple Rooms',
+ 'Business']
+
+
+ ```py
+
+ # random forest using featured selected features:
+
+X = airbnb[['City','Day','Room Type','Person Capacity','Private Room','Cleanliness Rating','Guest Satisfaction','Bedrooms',
+            'City Center (km)','Metro Distance (km)','Attraction Index','Restraunt Index','Superhost','Multiple Rooms',
+            'Business']]
+
+y = airbnb['Price']  
+
+new_cat_cols = ['City', 'Day', 'Room Type']
+
+new_num_cols = ['Person Capacity', 'Cleanliness Rating', 'Guest Satisfaction', 'Bedrooms',
+                'City Center (km)', 'Metro Distance (km)', 'Attraction Index','Restraunt Index']
+
+new_bool_cols = ['Private Room', 'Superhost','Multiple Rooms', 'Business']
+
+preproc2 = ColumnTransformer(
+    transformers=[
+        ('one hot', OneHotEncoder(categories='auto'), new_cat_cols),
+        ('standardize', StandardScaler(), new_num_cols),
+        ('bool as is', 'passthrough', new_bool_cols)])
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=40)
+
+pipeline_rf = Pipeline([('preprocessor', preproc2), ('regressor', RandomForestRegressor())])
+
+pipeline_rf.fit(X_train, y_train)
+predictions = pipeline_rf.predict(X_test)
+
+rf_r2 = r2_score(y_test, predictions)
+mae = mean_absolute_error(y_test, predictions)
+
+print(f"Mean Absolute Error: {mae}") 
+print(f"R-squared score: {rf_r2}")
+
+```
+Mean Absolute Error: 53.55615026334821
+
+R-squared score: 0.3365347544379972
+
+```py
+# decision tree regressor with featured selected columns for comparison
+pipeline_dtree = Pipeline([('preprocessor', preproc2),('regressor', DecisionTreeRegressor())])
+
+pipeline_dtree.fit(X_train, y_train)
+predictions = pipeline_dtree.predict(X_test)
+
+rf_r2 = r2_score(y_test, predictions)
+mae = mean_absolute_error(y_test, predictions)
+
+print(f"Mean Absolute Error: {mae}")
+print(f"R-squared score: {rf_r2}")
+```
+
+Mean Absolute Error: 56.25487882704233
+
+R-squared score: 0.27852279686488435
+
+
+Now that we have done feature selection, we can tune the hyperparameters of our model. We did this using grid search cross validation. The hyperparameters that we used grid search on were n_estimators, max_depth, and min_samples_split. The grid search cross validation resulted in recommending the default max_depth and min_samples_split values. The n_estimators value was recommended to be changed to 40. 
+
+For our secondary analysis, we decided to use ANOVA to test the statistical significance of the initial findings. ANOVA stands for Analysis Of Variance and is used to determine whether there is a significant difference between the means of multiple groups of data. In the context of this project, using ANOVA will help us determine whether the results for different hyperparameter values are significant or due to random chance. Due to the randomness of splitting, sampling, and small sample size for the hyperparameter tuning, we decided to use a 10% significance level in a 2 tailed p-value test. Meaning results at or below 0.10 or at or above 0.90 are statistically significant. 
+
+
+```py
+# hyper parameter selction 
+
+subset = airbnb.sample(n=int(41714/800), random_state=23)
+
+X = subset[['City','Day','Room Type','Person Capacity','Private Room','Cleanliness Rating','Guest Satisfaction','Bedrooms',
+            'City Center (km)','Metro Distance (km)','Attraction Index','Restraunt Index','Superhost','Multiple Rooms',
+            'Business']]
+
+y = subset['Price'] 
+
+new_cat_cols = ['City', 'Day', 'Room Type']
+
+new_num_cols = ['Person Capacity', 'Cleanliness Rating', 'Guest Satisfaction', 'Bedrooms',
+                'City Center (km)', 'Metro Distance (km)', 'Attraction Index','Restraunt Index']
+
+new_bool_cols = ['Private Room', 'Superhost','Multiple Rooms', 'Business']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+preproc3 = ColumnTransformer(
+    transformers=[
+        ('one hot', OneHotEncoder(categories='auto'), new_cat_cols),
+        ('standardize', StandardScaler(), new_num_cols),
+        ('bool as is', 'passthrough', new_bool_cols)
+    ])
+
+X_train_transformed = preproc3.fit_transform(X_train)
+
+preproc3_copy = preproc3
+preproc3_copy.named_transformers_['one hot'].handle_unknown = 'ignore'
+
+X_test_transformed = preproc3_copy.transform(X_test)
+
+rf_regressor = RandomForestRegressor()
+
+param_grid = {
+    'n_estimators': [40, 100, 150],
+    'max_depth': [None, 5, 10],
+    'min_samples_split': [2, 4, 6],
+}
+
+grid_search = GridSearchCV(rf_regressor, param_grid, cv=5, scoring='neg_mean_absolute_error')
+grid_search.fit(X_train_transformed, y_train)
+
+best_estimator = grid_search.best_estimator_
+
+print("Best Estimator:")
+print(best_estimator)
+
+```
+Best Estimator:
+RandomForestRegressor(max_depth=5, min_samples_split=4, n_estimators=40)
+
+
+# Anova block could go here thinking about not including it due do how much code above:
+below are results from anova, (again thinkinga about not using this section for shortness)
+
+n_estimators F-statistic: 1.8105517257210355
+n_estimators P-value: 0.18520069277022047
+
+Depth F-statistic: 0.09213493090994429
+Depth P-value: 0.912303071278659
+
+min_samples_split F-statistic: 5.007302387615431
+min_samples_split P-value: 0.01522473530637657
+
+# Discussion
+
+
+### Interpreting the result
+As we anticipated, our main finding from this project is that the featured selected, and hyper parameter tuning random forest performed better on the test data than previous iterations of random forest and decision tree regressors. As noted in the proposed solutions section, random forests are ensembles of decision tree regressors that are less prone to overfit and more generalizable. This helps explain the improvement between our final model and the base model. Our feature selection allowed us to drop the variable “shared room” that was distracting our model from more accurate results. When the model was given the feature selected dataset it performed better because it could focus on the features that are relevant for predicting price. The hyperparameter tuning determined which number of estimators, max depth of each estimator, and number of sample splits from each decision led to the lowest error in predicting price. 
+
+The MAE score of the original random forest using all features and un-tuned hyperparameters was 54.04. This means that this model was off by an average of 54.04 from the actual price of the test data. Our final model improved to an MAE of 53.96. There is a 0.08 improvement in MAE. The r2 value of the original random forest was 0.325 and the r2 value of the final model was 0.326. An improvement in r2 scores amounts to the final model explaining the variance in price prediction 0.01% better than the original. This means that the two models explain nearly equal amounts of variability in the independent variable price. The final model achieves a small improvement in MAE and r2 score while being simpler than the original model. The feature selection process led us to drop the “shared rooms” variable giving the model a simpler feature set to train on. The hyperparameter tuning led to the number of estimators in the random forest being dropped from the default value of 100 down to 40. Ensembles with fewer estimators are less likely to overfit to training data so the improvement of our final model on the test set makes sense. The parsimony principle states that when evaluating models the simplest model is preferred. Our final model is both simpler and more accurate than the original random forest. 
+
+Our secondary analysis allowed us to determine whether the results of our hyperparameter tuning process were significant. The final p-values were: n_estimators = 0.902, max_depth = 0.953, and min_samples_split = 0.008. The default ANOVA for scikit-learn is a two tailed significance test and we defined results above 0.89 and below 0.11 as significant. All of our hyperparameter tunings are deemed significant by these standards. The max_depth and min_samples_split are well within the range of statistical significance and the p value for n_estimators is just on the right side of the boundary for significance.
+
+```py
+# random forest model with hyper parameter tuning and featured selected features:
+
+X = airbnb[['City','Day','Room Type','Person Capacity','Private Room','Cleanliness Rating','Guest Satisfaction','Bedrooms',
+            'City Center (km)','Metro Distance (km)','Attraction Index','Restraunt Index','Superhost','Multiple Rooms',
+            'Business']]
+
+y = airbnb['Price']  
+
+new_cat_cols = ['City', 'Day', 'Room Type']
+
+new_num_cols = ['Person Capacity', 'Cleanliness Rating', 'Guest Satisfaction', 'Bedrooms',
+                'City Center (km)', 'Metro Distance (km)', 'Attraction Index','Restraunt Index']
+
+new_bool_cols = ['Private Room', 'Superhost','Multiple Rooms', 'Business']
+
+preproc4 = ColumnTransformer(
+    transformers=[
+        ('one hot', OneHotEncoder(categories='auto'), new_cat_cols),
+        ('standardize', StandardScaler(), new_num_cols),
+        ('bool as is', 'passthrough', new_bool_cols)])
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=40)
+
+pipeline_rf = Pipeline([('preprocessor', preproc4), ('regressor', RandomForestRegressor(n_estimators=40))])
+
+pipeline_rf.fit(X_train, y_train)
+predictions = pipeline_rf.predict(X_test)
+
+rf_r2 = r2_score(y_test, predictions)
+mae = mean_absolute_error(y_test, predictions)
+
+print(f"Mean Absolute Error: {mae}") 
+print(f"R-squared score: {rf_r2}")
+```
+
+```py
+# addition Descion tree regessor with feature selected features for one more comaprison
+pipeline_dtree = Pipeline([('preprocessor', preproc2),('regressor', DecisionTreeRegressor())])
+
+pipeline_dtree.fit(X_train, y_train)
+predictions = pipeline_dtree.predict(X_test)
+
+rf_r2 = r2_score(y_test, predictions)
+mae = mean_absolute_error(y_test, predictions)
+
+
+print(f"Mean Absolute Error: {mae}")
+print(f"R-squared score: {rf_r2}")
+```
+
+
+
+### Limitations
+
+There are several limitations to this project. The first has to do with the data. Our data set was based on approximately 41,000 Airbnbs across nine European cities. This is definitely enough data to train/test a machine learning model for predictions in that geographic region but could have limited capacity to generalize outside of Europe for worldwide Airbnb price prediction as trends in Europe may not apply to non-European areas. A next step for this project could be to find data on other region’s Airbnb’s and compare the results of our model on that data with the results on our current dataset. 
+
+Another limitation would be that we did not try a neural network for Airbnb prediction. This was the first machine learning project for most of our group so we wanted to work with models that we fully understood to complete each aspect of the project on time. A next step could be to make/train a neural network for Airbnb price prediction to see if it is more accurate on the test set than our random forest. 
+
+A third limitation was born out of the time it takes to train and test random forests. We used scikit-learn for our project as scikit-learn is what was taught in class. Scikit-learn does not use GPUs meaning it takes a longer time to run complex models than Pytorch or TensorFlow which can use GPUs. We found that doing the feature selection with tens of thousands of data points would take an estimated time of 100 hours per run, based on observed local run times and data counts. To cut down on the time for feature selection we used a sample of 52 data points in feature selection. A next step to work on this limitation would be to do the project using Pytorch or Tensorflow and GPUs for feature selection using all of the data points in the training set. A similar limitation is that we tested 3 different hyperparameter splits for the random forest as testing a wide range of splits would take dozens of hours per run using scikit-learn. The solution to this problem would be to run with Pytorch or Tensorflow and GPUs to test a wider range of hyperparameters on the full training set. 
+   
+
+### Ethics & Privacy
+
+Our project does not raise any glaringly obvious ethical or privacy related concerns. Air bnb is a platform in the public domain and the data set we are using is from Kaggle, another open data set platform. Since we are not gathering any personal data on the individuals that own the properties in the data set or any other personally identifiable data (hosts are anonymous in this data set), informed consent is not needed for our project and is not a concern. Using the aforementioned methods to collect the data we are using for this project, we do not have any concerns about immoral data collection methods or any personally identifiable data being used which ensures privacy of the Airbnb host’s whose listings were collected in the data set. There is potential for bias when predicting the prices of air bnb in certain locations, due to historical policies in certain communities, which may have correlated to different prices than other similarly featured listings in different areas. If these historical policies play a factor in our models prediction we will make sure to eliminate these biases from our model and algorithms. Since this project will only be posted on a private github shared with the course staff there are no security concerns, beyond the regular ones shared by github and the course staff (e.g. hacking or glitch that could make the model public or leaked). One possible ethical concern is, if deployed into the real world, how the model could affect the housing and rental market. There is potential for the model to make the market in cities used for data more competitive and potentially expose overpriced air bnb’s. This could result in a loss of business for the hosts of these airbnb and by extension a reduction in income which could affect their standard of living. Beyond this scenario which could only be encountered if the model went into full production, we do not see any other concerns with our project. Overall our project has very few concerns, thus we have followed and considered all factors and guidelines to create an ethical model.
+
+
+### Conclusion
+
+Our project was designed to predict airbnb prices given data about the Airbnb listings themselves. We used a random forest regressor model and compared it to a decision tree model, as the random forest model yielded better performance. After selecting features, tuning hyperparameters and comparing models, we found that generally, the random forest model was a better model to predict prices than the decision tree model was. The topic of this project, predicting Airbnb prices based on individual listing attributes, fits into other work in the field of price prediction and cognitive science as a whole. Cognitive Science deals a lot with why people think and behave the way they do, in this case, it could be looked into why certain features affect price more than others, and why people tend to value those features more than others. If research were to continue on this topic, it is possible that researchers could look into the impact that Airbnb prices have on overall tourism and monetary profit for cities. This would further extend the usefulness of investigating Airbnb prices and by extension our model, as well as showing the influence of the industry overall. 
+
+
+# Footnotes
+<a name="Barronnote"></a>1.[^](#Barron): Barron, K., Kung, E., & Proserpio, D. (2021, September 17). Research: When airbnb listings in a city increase, so do rent prices. *Harvard Business Review*. https://hbr.org/2019/04/research-when-airbnb-listings-in-a-city-increase-so-do-rent-prices<br> 
+<a name="Kerennote"></a>2.[^](#Keren): Keren Horn, Mark Merante, Is home sharing driving up rents? Evidence from Airbnb in Boston, *Journal of Housing Economics*, Volume 38, 2017, Pages 14-24, ISSN 1051-1377, https://doi.org/10.1016/j.jhe.2017.08.002.<br>
+<a name="Pereznote"></a>3. [^](#Perez): Perez-Sanchez, V., Serrano-Estrada, L., Marti, P., & Mora-Garcia, R.-T. (2018). The What, Where, and Why of Airbnb Price Determinants. *Sustainability*, 10(12), 4596. https://doi.org/10.3390/su10124596 <br>
+<a name="Nguyennote"></a>4.[^](#Nguyen): Nguyen, Quynh, "A Study of Airbnb as a Potential Competitor of the Hotel Industry" (2014). *UNLV Theses, Dissertations, Professional Papers, and Capstones*. 2618. http://dx.doi.org/10.34917/8349601lem <br>
+<a name="Gutierreznote"></a>5.[^](#Gutierrez): Gutierrez, J., Carlos, J., Romanillos, G., & Henar, M. (2016). Airbnb in tourist cities: Comparing spatial patterns of hotels and peer-to-peer accommodation. *ArXiv*. https://doi.org/10.1016/j.tourman.2017.05.003 <br>
+<a name="Sansnote"></a>6.[^](#Sans): Sans, A. A., & Domínguez, A. Q. (2016, May 3). 13. Unravelling airbnb: Urban perspectives from Barcelona. De Gruyter. https://www.degruyter.com/document/doi/10.21832/9781845415709-015/html <br>
