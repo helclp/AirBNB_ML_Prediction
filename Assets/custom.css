@@ -1,0 +1,5 @@
+
+.highlight, .code {
+    overflow-x: auto;
+    white-space: nowrap;
+}
