@@ -1,5 +1,5 @@
 # **Price Prediction Model for European Airbnb Listings**
-
+This project was originally created for the final project assignment in COGS118A during spring 2023, but has since been refined and expanded upon by Patrick Helcl and Kai Stern since its submission. Other contributors to the intial project, but not this website or new sections, are listed at the bottom as well as their contributions.
 
 # Abstract 
 We aim to build a model that predicts the price of Airbnbs in Europe using a data set from Kaggle which details the features and pricings of Airbnb’s in various European countries and cities. This model would help people looking to travel quickly determine if an Airbnb is fairly priced and the pricing trends of Airbnbs in general areas. The model would also help owners of Airbnbs determine prices according to their circumstances and attributes. The data used includes various statistics of Airbnb features (e.g number of rooms, price, has superhost, etc). Due to our datasets inclusion of boolean, categorical, and numerical data columns we plan to use a random forest regressor model which we feel will best handle these features. We will be building a model that predicts the price of the Airbnb and compare our model’s results with the price column in our dataset. The specific model will be chosen after feature selection, hyperparameter tuning, and comparison of several algorithms. Algorithms will be compared using appropriate loss functions.  
@@ -383,3 +383,9 @@ Our project was designed to predict airbnb prices given data about the Airbnb li
 <a name="Nguyennote"></a>4.[^](#Nguyen): Nguyen, Quynh, "A Study of Airbnb as a Potential Competitor of the Hotel Industry" (2014). *UNLV Theses, Dissertations, Professional Papers, and Capstones*. 2618. http://dx.doi.org/10.34917/8349601lem <br>
 <a name="Gutierreznote"></a>5.[^](#Gutierrez): Gutierrez, J., Carlos, J., Romanillos, G., & Henar, M. (2016). Airbnb in tourist cities: Comparing spatial patterns of hotels and peer-to-peer accommodation. *ArXiv*. https://doi.org/10.1016/j.tourman.2017.05.003 <br>
 <a name="Sansnote"></a>6.[^](#Sans): Sans, A. A., & Domínguez, A. Q. (2016, May 3). 13. Unravelling airbnb: Urban perspectives from Barcelona. De Gruyter. https://www.degruyter.com/document/doi/10.21832/9781845415709-015/html <br>
+
+### Other original contributors:
+
+Rio Aguina-Kang: Conducted ANOVA statistical analysis and footnotes section
+Vignesh Jayananth: *writing sections need to check which ones*
+Christopher Rochez: *writing sections need to check which ones*
